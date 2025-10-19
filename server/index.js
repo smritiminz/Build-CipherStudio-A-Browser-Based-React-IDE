@@ -25,7 +25,7 @@ mongoose.connect(MONGO_URI)
 // =======================
 const SnippetSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  code: { type: String, required: true },
+  code: { type: String, default: "" }, // ✅ allow empty code
   language: { type: String, default: "javascript" },
   createdAt: { type: Date, default: Date.now },
 });
@@ -60,10 +60,10 @@ app.get('/api/snippets', async (req, res) => {
 app.post('/api/snippets', async (req, res) => {
   try {
     const { title, code, language } = req.body;
-    if (!title || !code)
-      return res.status(400).json({ success: false, error: "Title and code are required" });
+    if (!title)
+      return res.status(400).json({ success: false, error: "Title is required" });
 
-    const snippet = new Snippet({ title, code, language });
+    const snippet = new Snippet({ title, code: code || "", language });
     const saved = await snippet.save();
     res.json({ success: true, data: saved });
   } catch (err) {
